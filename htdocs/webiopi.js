@@ -886,6 +886,13 @@ ADC.prototype.readVolt = function(channel, callback) {
 	});
 }
 
+ADC.prototype.readVoltDiff = function(channel, callback) {
+	var name = this.name;
+	$.get(this.url + "/d/" + channel + "/volt", function(data) {
+		callback(name, channel, data);
+	});
+}
+
 ADC.prototype.readAllInteger = function(callback) {
 	var name = this.name;
 	$.get(this.url + "/*/integer", function(data) {
@@ -903,6 +910,13 @@ ADC.prototype.readAllFloat = function(callback) {
 ADC.prototype.readAllVolt = function(callback) {
 	var name = this.name;
 	$.get(this.url + "/*/volt", function(data) {
+		callback(name, data);
+	});
+}
+
+ADC.prototype.readAllVoltDiff = function(callback) {
+	var name = this.name;
+	$.get(this.url + "/d/*/volt", function(data) {
 		callback(name, data);
 	});
 }
