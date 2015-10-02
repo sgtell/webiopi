@@ -105,9 +105,7 @@ function WebIOPi() {
 	for(var i = 0; i < scripts.length; i++) {
 		var res = reg.exec(scripts[i].src);
 		if (res && (res.length > 1)) {
-			script = scripts[i];
 			this.context = res[1];
-			
 		}
 	}
 
@@ -242,9 +240,16 @@ WebIOPi.prototype.addALT = function (alt, gpio, name) {
 }
 
 WebIOPi.prototype.updateValue = function (gpio, value) {
-	w().GPIO[gpio].value = value;
-	var style = (value == 1) ? "HIGH" : "LOW";
-	$("#gpio"+gpio).attr("class", style);
+    w().GPIO[gpio].value = value;
+    var class1 = $("#gpio"+gpio).attr("class1");
+    var class0 = $("#gpio"+gpio).attr("class0");
+    var style;
+    if(class1 && class1.length>0 && class0 && class0.length>0) {
+	style = (value == 1) ? class1 : class0 ;
+    } else {
+	style = (value == 1) ? "HIGH" : "LOW";
+    }
+    $("#gpio"+gpio).attr("class", style);
 }
 
 WebIOPi.prototype.updateFunction = function (gpio, func) {
@@ -260,14 +265,16 @@ WebIOPi.prototype.updateSlider = function (gpio, slider, value) {
 WebIOPi.prototype.updateALT = function (alt, enable) {
 	for (var p in alt.gpios) {
 		gpio = alt.gpios[p].gpio;
-		$("#description"+gpio).empty();
 		if (enable) {
+			$("#description"+gpio).empty();
 			$("#description"+gpio).append(alt.name + " " + alt.gpios[p].name);
 			$("#gpio"+gpio).attr("class", alt.name);
 			$("#function"+gpio).attr("class", "FunctionSpecial");
 		}
 		else {
-			$("#description"+gpio).append("GPIO " + gpio);
+			if( $("#description"+gpio).text() == "") {
+				$("#description"+gpio).append("GPIO " + gpio);
+			}
 			$("#gpio"+gpio).attr("class", "");
 			$("#function"+gpio).attr("class", "FunctionBasic");
 		}
@@ -468,6 +475,27 @@ WebIOPi.prototype.createGPIOButton = function (gpio, label) {
 	return button;
 }
 
+WebIOPi.prototype.createGPIOButtonCC = function (gpio, label, class1, class0) {
+	var button = w().createButton("gpio" + gpio, label);
+    	button.attr("class1", class1);
+    	button.attr("class0", class0);
+	button.bind(BUTTON_DOWN, function(event) {
+		w().toggleValue(gpio);
+	});
+	return button;
+}
+
+WebIOPi.prototype.createMomentaryGPIOButton = function (gpio, label) {
+	var button = w().createButton("gpio" + gpio, label);
+	button.bind(BUTTON_DOWN, function(event) {
+	    w().digitalWrite(gpio, 1);
+	});
+	button.bind(BUTTON_UP, function(event) {
+	    w().digitalWrite(gpio, 0);
+	});
+	return button;
+}
+
 WebIOPi.prototype.createFunctionButton = function (gpio) {
 	var button = w().createButton("function" + gpio, " ");
 	button.attr("class", "FunctionBasic");
@@ -639,6 +667,42 @@ Expert.prototype.createList = function (containerId) {
 	
 	return box;
 } 
+
+Expert.prototype.createGPIOBtnCC = function (gpio, class1, class0, desc) {
+	var box = $("<div>");
+    	box.append(w().createGPIOButtonCC(gpio, gpio, class1, class0));
+	div = $('<div>');
+	div.attr("id", "description"+gpio);
+	div.attr("class", "Description");
+	div.append(desc);
+	box.append(div);
+
+	return box;
+}
+
+Expert.prototype.createPulseBtn = function (gpio, desc) {
+	var box = $("<div>");
+    	box.append(w().createPulseButton("gpiop"+gpio, gpio, gpio));
+	div = $('<div>');
+	div.attr("id", "description"+gpio);
+	div.attr("class", "Description");
+	div.append(desc);
+	box.append(div);
+
+	return box;
+}
+
+Expert.prototype.createMomentaryBtn = function (gpio, desc) {
+	var box = $("<div>");
+        box.append(w().createMomentaryGPIOButton(gpio, gpio));
+	div = $('<div>');
+	div.attr("id", "description"+gpio);
+	div.attr("class", "Description");
+	div.append(desc);
+	box.append(div);
+
+	return box;
+}
 
 WebIOPi.prototype.Serial = function(device) {
 	return new Serial(device);
