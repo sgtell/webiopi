@@ -44,6 +44,7 @@ class ADS1X1X(ADC, I2C):
         gain = 0x1 # FS = +/- 4.096V
         config[0] &= ~self.CONFIG_GAIN_MASK
         config[0] |= gain << 1
+        config[1] = 0xA3;  # 250sps, disable comparator
         
         self.writeRegisters(self.CONFIG, config)
     
@@ -58,7 +59,7 @@ class ADS1X1X(ADC, I2C):
         else:
             config[0] |= (channel + 4) << 4
         self.writeRegisters(self.CONFIG, config)
-        sleep(0.001)
+        sleep(0.010)
         d = self.readRegisters(self.VALUE, 2)
         value = (d[0] << 8 | d[1]) >> (16-self._analogResolution)
         return signInteger(value, self._analogResolution)

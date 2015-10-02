@@ -49,7 +49,7 @@ class ADC():
         return int(self._analogMax)
     
     @request("GET", "analog/vref")
-    @response("%.2f")
+    @response("%.6f")
     def analogReference(self):
         return self._analogRef
     
@@ -63,13 +63,20 @@ class ADC():
         return self.__analogRead__(channel, diff)
     
     @request("GET", "analog/%(channel)d/float")
-    @response("%.2f")
+    @response("%.6f")
     def analogReadFloat(self, channel, diff=False):
         return self.analogRead(channel, diff) / float(self._analogMax)
     
     @request("GET", "analog/%(channel)d/volt")
-    @response("%.2f")
+    @response("%.6f")
     def analogReadVolt(self, channel, diff=False):
+        if self._analogRef == 0:
+            raise NotImplementedError
+        return self.analogReadFloat(channel, diff) * self._analogRef
+    
+    @request("GET", "analog/d/%(channel)d/volt")
+    @response("%.6f")
+    def analogReadVoltDiff(self, channel, diff=True):
         if self._analogRef == 0:
             raise NotImplementedError
         return self.analogReadFloat(channel, diff) * self._analogRef
@@ -87,7 +94,7 @@ class ADC():
     def analogReadAllFloat(self):
         values = {}
         for i in range(self._analogCount):
-            values[i] = float("%.2f" % self.analogReadFloat(i))
+            values[i] = float("%.6f" % self.analogReadFloat(i))
         return values
     
     @request("GET", "analog/*/volt")
@@ -95,7 +102,7 @@ class ADC():
     def analogReadAllVolt(self):
         values = {}
         for i in range(self._analogCount):
-            values[i] = float("%.2f" % self.analogReadVolt(i))
+            values[i] = float("%.6f" % self.analogReadVolt(i))
         return values
     
 class DAC(ADC):
