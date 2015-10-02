@@ -51,6 +51,14 @@ input[type="range"] {
 	background-color: Orange;
 }
 
+.INVLOW {
+	background-color: Orange;
+}
+
+.INVHIGH {
+	background-color: Black;
+}
+
 .I2C {
 	background-color: LightBlue;
 }

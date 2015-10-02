@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content = "width = 420, user-scalable = no" /> 
+	<title>WebIOPi | Custom Panel</title>
+	<script type="text/javascript" src="/webiopi.js"></script>
+	<script type="text/javascript">
+	webiopi().ready(function() {
+
+	  function  my_refreshUI(dev) {
+	      dev.readAllVoltDiff(function(name, data) {
+	        var v0;
+	        var v3;
+		for (i in data) {
+			if(i == 0) {v0 = data[i]; }
+			if(i == 3) {v3 = data[i]; }
+	        }
+	        if(v0 != undefined) {
+	  		var nvvdd_cell = $("#nvvdd_cell");
+		        nvvdd_cell.text(parseFloat(v0).toFixed(3));
+                }
+	        if(v3 != undefined) {
+                        var i_nvvdd_cell = $("#i_nvvdd_cell");
+	  		i_nvvdd_cell.text(parseFloat(v3).toFixed(3));
+    	        }
+		setTimeout(function(){my_refreshUI(dev)}, dev.refreshTime);
+	});
+	  	
+	  }
+
+        	var content = $("#content");
+		//webiopi().Expert().createPanel("content");
+	        var box = $('<div>');
+	    	box.append( w().Expert().createGPIOBtnCC(4,  "INVHIGH", "INVLOW", "PWR LED") );
+	    	box.append( w().Expert().createGPIOBtnCC(17, "INVHIGH", "INVLOW", "System 5v") );
+	    	box.append( w().Expert().createGPIOBtnCC(18, "INVHIGH", "INVLOW", "spare input") );
+	    	box.append( w().Expert().createGPIOBtnCC(22, "INVHIGH", "INVLOW", "spare input") );
+
+	    	box.append( w().Expert().createMomentaryBtn(23, "PWR button") );
+	    	box.append( w().Expert().createMomentaryBtn(24, "spare relay") );
+	    	box.append( w().Expert().createMomentaryBtn(25, "spare relay") );
+	    	box.append( w().Expert().createPulseBtn(27, "spare pulse relay")) ;
+
+	        content.append(box);
+
+		w().refreshGPIO(true);
+		var device = webiopi().newDevice("ADC", "adc0");
+
+	        if (device) {
+	                my_refreshUI(device);
+            	}
+	});
+	</script>
+	<style type="text/css">
+	button {
+		margin: 2px 2px 2px 2px;
+		width: 50px;
+	}
+	
+	.Description {
+		display: inline;
+	}
+	</style>
+</head>
+<body>
+<div id="content"></div>
+<hr/>
+<div id="analog"></div>
+<hr/>
+<table border="1">
+<tr><td>NVVdd</td>
+<td> <div id="nvvdd_cell"></div></td>
+</tr>
+
+<tr><td>I(NVVdd)</td>
+<td id="i_nvvdd_cell"></td>
+</tr>
+</table>
+<hr/>
+Custom webiopi control-panel example.
+Typical hardware https://oshpark.com/shared_projects/InSjXUkB
+</body>
+</html>
