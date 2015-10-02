@@ -105,6 +105,14 @@ class ADC():
             values[i] = float("%.6f" % self.analogReadVolt(i))
         return values
     
+    @request("GET", "analog/d/*/volt")
+    @response(contentType=M_JSON)
+    def analogReadAllVoltDiff(self):
+        values = {}
+        for i in range(self._analogCount):
+            values[i] = float("%.6f" % self.analogReadVoltDiff(i))
+        return values
+
 class DAC(ADC):
     def __init__(self, channelCount, resolution, vref):
         ADC.__init__(self, channelCount, resolution, vref)
